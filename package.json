@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Farebox — civic-tech city transit app. Fable design showcase.",
+  "description": "Farebox — civic-tech city transit app. Parable design showcase.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

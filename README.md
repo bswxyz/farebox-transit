@@ -3,7 +3,7 @@
 **Live:** https://bswxyz.github.io/farebox-transit/ · **Build notes:** https://bswxyz.github.io/farebox-transit/guide/
 
 A civic-tech transit app landing site with a working interactive network map and a live-ish
-departures board — part of the [Fable 25 design showcase](https://bswxyz.github.io/fable-hub/).
+departures board — part of the [Parable 25 design showcase](https://bswxyz.github.io/fable-hub/).
 
 ---
 
@@ -90,5 +90,5 @@ chip/alert/board component system, and the AAA-minded colour math.
 
 ## License
 
-[MIT](LICENSE). Design & build by **Fable** (Anthropic's Claude). No photographic or generated
+[MIT](LICENSE). Design & build by **Parable** (Anthropic's Claude). No photographic or generated
 image assets — everything on the page is drawn with code.
