@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farebox — every bus, tram and metro in Calder. One app.</title>
+    <meta name="description" content="Farebox is Calder Transit's official app: live arrivals, one fare card that caps itself, service alerts in plain language, and honest step-free info for every station." />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='13' height='13' rx='3' fill='%23e4322b'/%3E%3Crect x='17' y='2' width='13' height='13' rx='3' fill='%231f6fe0'/%3E%3Crect x='2' y='17' width='13' height='13' rx='3' fill='%232ea44f'/%3E%3Crect x='17' y='17' width='13' height='13' rx='3' fill='%23c47600'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/farebox-transit/assets/main-D846D6WU.js"></script>
+    <link rel="stylesheet" crossorigin href="/farebox-transit/assets/main-COFz4RmC.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a class="brand" href="#top" aria-label="Farebox — home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="2" y="2" width="13" height="13" rx="3.5" class="q-r" />
+            <rect x="17" y="2" width="13" height="13" rx="3.5" class="q-b" />
+            <rect x="2" y="17" width="13" height="13" rx="3.5" class="q-g" />
+            <rect x="17" y="17" width="13" height="13" rx="3.5" class="q-a" />
+          </svg>
+          <span class="brand-name">Farebox</span>
+        </a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="#map">Network</a>
+          <a href="#departures">Departures</a>
+          <a href="#fares">Fares</a>
+          <a href="#alerts">Alerts</a>
+          <a href="#access">Accessibility</a>
+        </nav>
+        <a class="btn btn-primary btn-small" href="#get">Get the app</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ── HERO + MAP ─────────────────────────────────────────────── -->
+      <section class="hero" id="top">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Calder Transit · official app</p>
+            <h1 class="hero-title" aria-label="The 8:12 means 8:12.">
+              <span class="hline" aria-hidden="true"><span class="hline-in">The 8:12</span></span>
+              <span class="hline" aria-hidden="true"><span class="hline-in">means 8:12.</span></span>
+            </h1>
+            <p class="hero-sub">
+              Live arrivals for every bus, tram and metro in Calder. One card that caps
+              itself. Alerts written by people, in plain words. That's the whole app.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#get">Get the app</a>
+              <a class="btn btn-ghost" href="#departures">See live departures</a>
+            </div>
+          </div>
+
+          <div class="hero-map" id="map" aria-labelledby="map-title">
+            <div class="map-head">
+              <h2 class="map-title" id="map-title">The Calder network</h2>
+              <p class="map-hint">Pick a line. Press any station.</p>
+            </div>
+            <div class="line-picker" id="line-picker"></div>
+            <p class="route-summary" id="route-summary" aria-live="polite">
+              4 lines · 25 stations · 7 interchanges.
+            </p>
+            <div class="map-scroll" role="region" aria-label="Network map, scrollable" tabindex="0">
+              <div class="map-canvas" id="network-map"><noscript>
+                <p class="noscript-note">The interactive map needs JavaScript. The short version:
+                4 lines, 25 stations, 7 interchanges — and every station's step-free status is
+                listed in the accessibility section below.</p>
+              </noscript></div>
+            </div>
+            <div class="map-legend" aria-hidden="false">
+              <span class="legend-item"><svg viewBox="0 0 20 20" class="lg" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="#fff" stroke="#111418" stroke-width="2.6"/></svg> Interchange</span>
+              <span class="legend-item"><svg viewBox="0 0 20 20" class="lg" aria-hidden="true"><circle cx="10" cy="10" r="4.5" fill="#fff" stroke="#1f6fe0" stroke-width="2.6"/></svg> Stop</span>
+              <span class="legend-item legend-note">Every station lists step-free access — press one.</span>
+            </div>
+          </div>
+
+          <aside class="station-card" id="station-card" aria-label="Station details" aria-live="polite">
+            <!-- populated by map.ts -->
+          </aside>
+        </div>
+      </section>
+
+      <!-- ── DEPARTURES BOARD ───────────────────────────────────────── -->
+      <section class="section section-board" id="departures" aria-labelledby="departures-title">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="eyebrow">Live departures</p>
+            <h2 class="section-title" id="departures-title">No decoding required.</h2>
+            <p class="section-sub">
+              Times count down the way you'd say them out loud — <em>4 min, 1 min, due</em>.
+              When a vehicle leaves, its row leaves with it.
+            </p>
+          </div>
+
+          <div class="board reveal" role="group" aria-label="Departures board">
+            <div class="board-head">
+              <label class="board-label" for="board-station">Departures from</label>
+              <select id="board-station" class="board-select"></select>
+              <span class="board-clock-wrap"><span class="live-dot" aria-hidden="true"></span><time class="board-clock" id="board-clock">--:--:--</time></span>
+            </div>
+            <div class="board-scroll">
+            <table class="board-table">
+              <caption class="sr-only">Next departures by line and direction</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Line</th>
+                  <th scope="col">Towards</th>
+                  <th scope="col"><abbr title="Platform">Plat.</abbr></th>
+                  <th scope="col">Next</th>
+                  <th scope="col">Then</th>
+                </tr>
+              </thead>
+              <tbody id="board-body">
+                <noscript><tr><td colspan="5" class="noscript-note">The live board needs
+                JavaScript. Off-peak, trains run every 4–7 minutes on the metro lines and every
+                5–9 on the tram and busway.</td></tr></noscript>
+              </tbody>
+            </table>
+            </div>
+            <p class="board-note">
+              Seeded demo feed — it behaves like the real thing, but no trains were harmed.
+              In production this reads the city's GTFS-RT feed.
+            </p>
+            <div class="sr-only" id="board-live" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── FARES ──────────────────────────────────────────────────── -->
+      <section class="section section-fares" id="fares" aria-labelledby="fares-title">
+        <div class="wrap fares-grid">
+          <div class="fares-copy reveal">
+            <p class="eyebrow">One card</p>
+            <h2 class="section-title" id="fares-title">Tap on. Tap off.<br />We do the math.</h2>
+            <p class="section-sub">
+              One fare card for bus, tram and metro. Ride enough in a day and it stops
+              charging you — the cap applies on its own, every time. You can't buy the
+              wrong ticket, because there are no tickets.
+            </p>
+            <ul class="fare-list">
+              <li><span>Single ride — any mode, free transfers for 90 min</span><strong class="price">$2.50</strong></li>
+              <li><span>Day cap — ride all day, never pay more</span><strong class="price">$5.00</strong></li>
+              <li><span>Week cap — Monday to Sunday</span><strong class="price">$24.00</strong></li>
+              <li><span>Reduced fare — seniors and disabled riders</span><strong class="price">half</strong></li>
+              <li><span>Kids under 12</span><strong class="price">free</strong></li>
+            </ul>
+          </div>
+          <div class="fares-visual reveal">
+            <div class="fare-card" aria-label="Farebox fare card, illustration">
+              <div class="fc-top">
+                <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+                  <rect x="2" y="2" width="13" height="13" rx="3.5" class="q-r" />
+                  <rect x="17" y="2" width="13" height="13" rx="3.5" class="q-b" />
+                  <rect x="2" y="17" width="13" height="13" rx="3.5" class="q-g" />
+                  <rect x="17" y="17" width="13" height="13" rx="3.5" class="q-a" />
+                </svg>
+                <span class="fc-cap">Auto-cap <strong>ON</strong></span>
+              </div>
+              <p class="fc-balance-label">Balance</p>
+              <p class="fc-balance" id="card-balance">$14.60</p>
+              <div class="fc-bottom">
+                <span class="fc-num">0031 7745 2210</span>
+                <span class="fc-name">Calder Transit</span>
+              </div>
+            </div>
+            <div class="topup-row" role="group" aria-label="Top up the demo card">
+              <button class="btn btn-chip" type="button" data-topup="10">+$10</button>
+              <button class="btn btn-chip" type="button" data-topup="20">+$20</button>
+              <button class="btn btn-chip" type="button" data-topup="40">+$40</button>
+            </div>
+            <p class="fine-note">Demo card — taps here move fictional money.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ALERTS ─────────────────────────────────────────────────── -->
+      <section class="section section-alerts" id="alerts" aria-labelledby="alerts-title">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="eyebrow">Service alerts</p>
+            <h2 class="section-title" id="alerts-title">We tell you what broke.</h2>
+            <p class="section-sub">
+              No “minor delays”. Every alert says what happened, what we're doing about
+              it, and when it ends.
+            </p>
+          </div>
+          <div class="alerts-grid">
+            <article class="alert reveal alert-now">
+              <div class="alert-meta">
+                <span class="sev sev-now">Happening now</span>
+                <span class="alert-line"><span class="chip chip-R" aria-hidden="true">R</span>Red Line</span>
+              </div>
+              <h3 class="alert-title">Trains every 9 minutes instead of 6, until about 10:30.</h3>
+              <p class="alert-body">
+                A train with a door fault was taken out of service at Fountain at 07:41.
+                It's being moved to the depot. Platforms will be busier than usual —
+                the 09:00–10:30 gap is the worst of it.
+              </p>
+              <p class="alert-stamp">Updated 08:12 · by a person</p>
+            </article>
+            <article class="alert reveal alert-planned">
+              <div class="alert-meta">
+                <span class="sev sev-planned">Planned works</span>
+                <span class="alert-line"><span class="chip chip-G" aria-hidden="true">G</span>Green Line</span>
+              </div>
+              <h3 class="alert-title">No trams Parkside ↔ Elm this weekend, Sat 06:00 to Mon 04:30.</h3>
+              <p class="alert-body">
+                We're replacing 400 metres of 1980s track — the cause of the Saturday
+                slow zones. Buses run instead, every 8 minutes, from stop G2 outside
+                each station. They're step-free.
+              </p>
+              <p class="alert-stamp">Posted Tuesday · reminder Friday 17:00</p>
+            </article>
+            <article class="alert reveal alert-info">
+              <div class="alert-meta">
+                <span class="sev sev-info">Station notice</span>
+                <span class="alert-line"><span class="chip chip-B" aria-hidden="true">B</span>Airport</span>
+              </div>
+              <h3 class="alert-title">The east lift is out until 14 July. A part is on order.</h3>
+              <p class="alert-body">
+                Step-free route: use the west lift, signed from arrivals — it adds about
+                two minutes. We check lift status every 20 minutes and this alert
+                updates itself when the lift comes back.
+              </p>
+              <p class="alert-stamp">Updated 06:40 · lift checked 08:00</p>
+            </article>
+          </div>
+          <aside class="promise reveal" aria-label="Alert writing rules">
+            <h3 class="promise-title">House rules for alerts</h3>
+            <ol class="promise-list">
+              <li>Say what broke.</li>
+              <li>Say what we're doing about it.</li>
+              <li>Say when it ends.</li>
+              <li>Never write “minor delays”.</li>
+            </ol>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ── ACCESSIBILITY ──────────────────────────────────────────── -->
+      <section class="section section-access" id="access" aria-labelledby="access-title">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="eyebrow">Access</p>
+            <h2 class="section-title" id="access-title">Access is a feature,<br />not a footnote.</h2>
+            <p class="section-sub">
+              This site — like the app — is built to WCAG AAA where the guidelines
+              define it. Not as a compliance chore: as the product.
+            </p>
+          </div>
+          <div class="access-grid">
+            <div class="access-col reveal">
+              <h3 class="access-h">Step-free, honestly</h3>
+              <p>
+                <strong>21 of 25 stations are step-free today.</strong> The four that
+                aren't — Quarry, Vale, Foundry and Brickyard — say so plainly on the
+                map, with the dates their fixes are funded for. Journey plans can avoid
+                them with one switch.
+              </p>
+              <p>
+                Lift status is checked every 20 minutes and written into alerts. “Step-free”
+                in Farebox means street to platform to vehicle — not just “there is a lift
+                somewhere”.
+              </p>
+            </div>
+            <div class="access-col reveal">
+              <h3 class="access-h">Built into this page</h3>
+              <ul class="access-list">
+                <li>Every station on the map is a real button with a spoken label — the map works with a keyboard, end to end.</li>
+                <li>The departures board announces updates to screen readers at most twice a minute — informative, never chatty.</li>
+                <li>Text is sized in <code>rem</code> and follows your browser settings. Nothing breaks at 200% zoom.</li>
+                <li>Reduced motion is honored: the board stops sliding, the map stops drawing itself, counters just show the number.</li>
+                <li>Alerts ship in 12 languages, written plainly in all of them.</li>
+              </ul>
+            </div>
+            <div class="access-col reveal">
+              <h3 class="access-h">Contrast receipts</h3>
+              <table class="contrast-table">
+                <caption class="sr-only">Measured contrast ratios used on this page</caption>
+                <thead><tr><th scope="col">Pair</th><th scope="col">Ratio</th><th scope="col">Grade</th></tr></thead>
+                <tbody>
+                  <tr><td>Body text on white</td><td class="num">18.5:1</td><td>AAA</td></tr>
+                  <tr><td>Secondary text on white</td><td class="num">11.3:1</td><td>AAA</td></tr>
+                  <tr><td>Ink on amber chip</td><td class="num">9.1:1</td><td>AAA</td></tr>
+                  <tr><td>White on line chips</td><td class="num">≥5.7:1</td><td>AA+</td></tr>
+                  <tr><td>Map lines on white</td><td class="num">≥3.2:1</td><td>graphics</td></tr>
+                </tbody>
+              </table>
+              <p class="fine-note">
+                Measured, not guessed. One honest trade: pure Amber Line paint
+                (<code>#f5a623</code>) manages only 2.0:1 on white — so on light surfaces
+                we draw it in a deeper amber that passes. The buses keep their paint.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STATS ──────────────────────────────────────────────────── -->
+      <section class="section section-stats" aria-label="Network statistics">
+        <div class="wrap stats-row">
+          <div class="stat reveal">
+            <p class="stat-num"><span data-to="4">0</span></p>
+            <p class="stat-label">lines, one map</p>
+          </div>
+          <div class="stat reveal">
+            <p class="stat-num"><span data-to="25">0</span></p>
+            <p class="stat-label">stations, all listed honestly</p>
+          </div>
+          <div class="stat reveal">
+            <p class="stat-num"><span data-to="94.2" data-decimals="1">0</span><span class="stat-unit">%</span></p>
+            <p class="stat-label">on time, last 90 days</p>
+          </div>
+          <div class="stat reveal">
+            <p class="stat-num"><span data-to="12">0</span></p>
+            <p class="stat-label">languages for every alert</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── GET THE APP ────────────────────────────────────────────── -->
+      <section class="section section-get" id="get" aria-labelledby="get-title">
+        <div class="wrap get-box reveal">
+          <div class="get-copy">
+            <h2 class="section-title" id="get-title">Get Farebox.</h2>
+            <p class="section-sub">
+              Free. No account needed to see arrivals. Your fare card lives in the app
+              or stays plastic — both work, both cap.
+            </p>
+            <div class="store-row">
+              <a class="btn btn-store" href="#get" aria-label="Download on the App Store (demo link)">
+                <svg viewBox="0 0 20 20" aria-hidden="true" class="store-ic"><path d="M13.6 10.6c0-2 1.7-3 1.8-3.1-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.75-3.2.75-.6 0-1.6-.73-2.7-.7-1.4 0-2.7.8-3.4 2-1.4 2.5-.35 6.2 1 8.2.65 1 1.45 2.1 2.5 2.05 1-.04 1.4-.65 2.6-.65s1.55.65 2.6.63c1.1-.02 1.8-1 2.45-2 .75-1.13 1.05-2.23 1.07-2.3-.02-.01-2.05-.8-2.07-3.13zM11.5 4.4c.55-.67.9-1.6.8-2.53-.77.03-1.7.5-2.27 1.17-.5.6-.94 1.55-.82 2.46.86.07 1.74-.44 2.3-1.1z" fill="currentColor"/></svg>
+                <span class="store-lines"><small>Download on the</small>App Store</span>
+              </a>
+              <a class="btn btn-store" href="#get" aria-label="Get it on Google Play (demo link)">
+                <svg viewBox="0 0 20 20" aria-hidden="true" class="store-ic"><path d="M3.5 2.6c-.3.3-.5.75-.5 1.33v12.14c0 .58.2 1.04.5 1.33l.08.07 6.8-6.8v-.16L3.58 2.53l-.08.07z" fill="currentColor"/><path d="M12.65 12.94 10.38 10.67v-.16l2.27-2.27.05.03 2.69 1.53c.77.43.77 1.15 0 1.59l-2.69 1.52-.05.03z" fill="currentColor" opacity=".75"/><path d="m12.7 12.9-2.32-2.23-6.88 6.73c.25.27.67.3 1.14.04l8.06-4.54z" fill="currentColor" opacity=".55"/><path d="M12.7 7.1 4.64 2.56c-.47-.26-.9-.23-1.14.04l6.88 6.73L12.7 7.1z" fill="currentColor" opacity=".85"/></svg>
+                <span class="store-lines"><small>Get it on</small>Google Play</span>
+              </a>
+            </div>
+            <p class="fine-note">Design-showcase demo — Calder is a fictional city, and these buttons stay on this page.</p>
+          </div>
+          <div class="get-visual" aria-hidden="true">
+            <div class="phone">
+              <div class="phone-head">
+                <span class="phone-time">08:09</span>
+                <span class="phone-title">Union</span>
+              </div>
+              <div class="phone-row"><span class="chip chip-R">R</span><span class="phone-dest">Millbrook</span><span class="phone-eta">due</span></div>
+              <div class="phone-row"><span class="chip chip-B">B</span><span class="phone-dest">Airport</span><span class="phone-eta">3 min</span></div>
+              <div class="phone-row"><span class="chip chip-B">B</span><span class="phone-dest">Westfield</span><span class="phone-eta">5 min</span></div>
+              <div class="phone-row"><span class="chip chip-R">R</span><span class="phone-dest">Northgate</span><span class="phone-eta">7 min</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="#top" aria-label="Farebox — back to top">
+            <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="2" y="2" width="13" height="13" rx="3.5" class="q-r" />
+              <rect x="17" y="2" width="13" height="13" rx="3.5" class="q-b" />
+              <rect x="2" y="17" width="13" height="13" rx="3.5" class="q-g" />
+              <rect x="17" y="17" width="13" height="13" rx="3.5" class="q-a" />
+            </svg>
+            <span class="brand-name">Farebox</span>
+          </a>
+          <p class="footer-tag">One app for a city's buses, trams and metro. A civic-tech concept.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="#map">Network map</a>
+          <a href="#departures">Departures</a>
+          <a href="#fares">Fares</a>
+          <a href="#alerts">Alerts</a>
+          <a href="#access">Accessibility</a>
+        </nav>
+        <div class="footer-credit">
+          <p>Designed &amp; built by <strong>Fable</strong> · <a href="./guide/">How this was&nbsp;built&nbsp;→</a></p>
+          <p class="fine-note">© <span id="year">2026</span> Farebox — City of Calder (fictional). Part of the Fable design showcase.</p>
+        </div>
+      </div>
+    </footer>
+
+  </body>
+</html>

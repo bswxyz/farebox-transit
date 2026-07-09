@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How Farebox was built — the guide</title>
+<meta name="description" content="Build notes for Farebox: a hand-authored octilinear SVG transit map, a deterministic seeded arrivals engine, and WCAG-AAA contrast as a design feature — in plain Vite + TypeScript." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='13' height='13' rx='3' fill='%23e4322b'/%3E%3Crect x='17' y='2' width='13' height='13' rx='3' fill='%231f6fe0'/%3E%3Crect x='2' y='17' width='13' height='13' rx='3' fill='%232ea44f'/%3E%3Crect x='17' y='17' width='13' height='13' rx='3' fill='%23c47600'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&family=Inter:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#fff;--ink:#111418;--dim:#343b44;--meta:#4a525c;--paper:#f2f4f6;
+--red:#e4322b;--blue:#1f6fe0;--green:#2ea44f;--amber-line:#c47600;
+--line:rgba(17,20,24,.14);--max:780px;--ease:cubic-bezier(.2,.9,.25,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;line-height:1.68;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:radial-gradient(rgba(17,20,24,.05) 1px,transparent 1.4px);background-size:24px 24px}
+.strip{height:4px;background:linear-gradient(90deg,var(--red) 0 25%,var(--blue) 25% 50%,var(--green) 50% 75%,var(--amber-line) 75% 100%)}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:3px}
+.wrap{max-width:var(--max);margin:0 auto;padding:clamp(28px,6vw,72px) clamp(18px,5vw,32px)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:3rem;font-family:"Spline Sans Mono",monospace;font-size:.74rem;letter-spacing:.1em;color:var(--meta)}
+.top a{color:var(--meta)}.top a:hover{color:var(--ink)}
+.ey{font-family:"Spline Sans Mono",monospace;font-size:.7rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);display:block;margin-bottom:1.2rem}
+h1{font-family:"Hanken Grotesk",sans-serif;font-weight:800;font-size:clamp(2.1rem,6vw,3.4rem);line-height:1.04;letter-spacing:-.02em;margin-bottom:.9rem}
+.sub{color:var(--dim);font-size:1.08rem;margin-bottom:3rem;max-width:58ch}
+h2{font-family:"Hanken Grotesk",sans-serif;font-weight:800;font-size:clamp(1.4rem,3.4vw,1.9rem);letter-spacing:-.01em;margin:3rem 0 1rem}
+p{color:var(--dim);margin:1rem 0}
+strong{color:var(--ink);font-weight:600}
+ul,ol{margin:1rem 0 1rem 1.2rem;color:var(--dim)}li{margin:.45rem 0}
+pre{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:1.3rem 0;font-family:"Spline Sans Mono",monospace;font-size:.8rem;line-height:1.7;color:var(--ink)}
+code{font-family:"Spline Sans Mono",monospace;font-size:.88em;background:var(--paper);padding:.08em .35em;border-radius:6px}
+pre code{background:none;padding:0}
+.rule{height:1px;background:var(--line);margin:3rem 0;border:0}
+.back{display:inline-block;margin-top:2.6rem;font-family:"Spline Sans Mono",monospace;font-size:.8rem}
+.note{font-family:"Spline Sans Mono",monospace;font-size:.78rem;color:var(--meta)}
+</style>
+</head>
+<body>
+<div class="strip" aria-hidden="true"></div>
+<div class="wrap">
+  <nav class="top" aria-label="Guide navigation">
+    <a href="../">← Farebox</a>
+    <span>THE GUIDE · how it was built</span>
+  </nav>
+
+  <span class="ey">Design showcase · build notes</span>
+  <h1>A transit map you can press.</h1>
+  <p class="sub">Farebox is a civic-tech concept: one app for a fictional city's buses, trams and
+    metro. The site is plain Vite + vanilla TypeScript — no framework — and its two working parts
+    are a hand-authored SVG network map and a seeded arrivals engine that ticks like the real thing.</p>
+
+  <h2>The idea</h2>
+  <p>Transit apps earn trust with plainness: the time means the time, the alert says what broke,
+    the map admits which stations have stairs. So the design language is municipal-modern — ink on
+    white, four line colours used as chips and strokes (never as body text), Vignelli's 45° map
+    discipline — and the accessibility work isn't a checklist at the end. It's the product's
+    whole argument, so the site makes it visible: an honest step-free section and a table of
+    measured contrast ratios.</p>
+
+  <h2>The stack</h2>
+  <ul>
+    <li><strong>Vite + vanilla TypeScript.</strong> The interactive pieces are DOM and SVG with
+      state small enough to hold in two modules. A framework would spend its budget re-rendering a
+      departures board that changes four text nodes a second; a 1-second loop that mutates exactly
+      what changed is simpler <em>and</em> calmer for screen readers.</li>
+    <li><strong>Type discipline where it pays.</strong> The network is a typed model
+      (<code>Line</code>, <code>Station</code>, <code>LineId</code>) in <code>src/data.ts</code>;
+      the map, the arrivals engine and the station cards are all derived from it. Add a station to
+      the array and every view knows about it.</li>
+    <li><strong>Hanken Grotesk / Inter / Spline Sans Mono</strong> — a civic display face for
+      headlines and destinations, a workhorse for body copy, and a mono for everything that is a
+      time, a code, or a measurement.</li>
+  </ul>
+
+  <h2>Signature technique #1 — the octilinear SVG map</h2>
+  <p>The map is not an image. Four route paths (45° angles only, drawn with round joins over a
+    white "casing" stroke so crossings stay legible) and 25 stations are built from the data model
+    at runtime:</p>
+  <pre><code>{ id: 'union', name: 'Union', x: 300, y: 300, lines: ['R','B'],
+  stepFree: true, access: 'Step-free everywhere, including between
+  platforms.', lx: 288, ly: 326, anchor: 'end' }</code></pre>
+  <p>Every station is a real control — an SVG <code>&lt;g role="button" tabindex="0"&gt;</code>
+    with a spoken label ("Union. Interchange, Red Line and Blue Line. Step-free.") and a generous
+    invisible hit circle. The line picker is a proper radiogroup; choosing a line dims the other
+    routes and their exclusive stations to 15% opacity, which reads as "highlighting" without a
+    single colour changing:</p>
+  <pre><code>pick(line: LineId | 'all'): void {
+  for (const [id, g] of this.routeGroups)
+    g.classList.toggle('is-dim', line !== 'all' &amp;&amp; id !== line);
+  for (const s of STATIONS)
+    this.stationGroups.get(s.id)!.classList
+      .toggle('is-dim', !(line === 'all' || s.lines.includes(line)));
+}</code></pre>
+  <p>On load, each path animates in with the classic <code>stroke-dasharray</code> trick, staggered
+    per line, then the station dots fade up — unless the visitor prefers reduced motion, in which
+    case the network is simply there.</p>
+
+  <h2>Signature technique #2 — the seeded arrivals engine</h2>
+  <p>There is no backend, but the departures board must not loop a canned GIF. Every
+    (station, line, direction) gets its own <code>mulberry32</code> PRNG seeded from its name, and
+    departure gaps are drawn from the line's real headway range:</p>
+  <pre><code>const rand = mulberry32(hash(`farebox:${stationId}:${lid}:${dir}`));
+while (last &lt; now + 3600) {
+  last += hmin + rand() * (hmax - hmin);   // e.g. metro: 240–420 s
+  s.times.push(last);
+}</code></pre>
+  <p>The clock is the real clock; the sequences are deterministic. Times decay through the grammar
+    riders actually use — <code>4 min → 1 min → due</code> — and when a departure passes, its row
+    leaves and the list re-sorts with a small FLIP animation (positions captured, DOM reordered,
+    deltas animated back to zero). A visually-hidden <code>aria-live="polite"</code> region
+    summarises the top three departures at most every 30 seconds, so a screen reader hears a
+    board, not a metronome.</p>
+
+  <h2>Details that matter</h2>
+  <ul>
+    <li><strong>Contrast receipts, published.</strong> Body ink <code>#111418</code> on white is
+      18.5:1; secondary text 11.3:1; the whole body layer clears AAA's 7:1. The honest trade: pure
+      Amber Line paint (<code>#f5a623</code>) is 2.0:1 on white — invisible to low vision — so on
+      light surfaces the amber is drawn as <code>#c47600</code> (3.5:1, passes non-text contrast)
+      and the bright amber only appears on dark surfaces, where it hits 9.1:1. The map is honest
+      about physics.</li>
+    <li><strong>Colour never carries meaning alone.</strong> Every line reference is a lettered
+      chip (R/B/G/A) plus a name; interchanges are rings, stops are dots; step-free status is a
+      word and an icon, not a hue.</li>
+    <li><strong>Keyboard end-to-end.</strong> Line picker is a radiogroup with arrow-key roving
+      focus; stations tab in network order and open with Enter or Space; the scrollable map region
+      is itself focusable so keyboard users can pan it on small screens.</li>
+    <li><strong>Reduced motion is a real mode.</strong> The intro draw, row FLIP, counter tweens,
+      pulsing "due" and reveal transitions all collapse to static equivalents — content identical,
+      nothing hidden.</li>
+  </ul>
+
+  <h2>Ship it on GitHub Pages</h2>
+  <p>Vite needs three things to live at <code>/farebox-transit/</code> on Pages: the base path, an
+    output directory Pages can serve from the repo (<code>docs/</code>), and the guide page as a
+    second rollup input so <code>/guide/</code> resolves statically:</p>
+  <pre><code>// vite.config.ts
+export default defineConfig({
+  base: '/farebox-transit/',
+  build: {
+    outDir: 'docs',
+    rollupOptions: { input: {
+      main:  resolve(__dirname, 'index.html'),
+      guide: resolve(__dirname, 'guide/index.html'),
+    }},
+  },
+});</code></pre>
+  <pre><code>npm run build                     # tsc --noEmit && vite build → docs/
+git add -A && git commit
+gh repo create USER/farebox-transit --public --source . --push
+gh api --method POST /repos/USER/farebox-transit/pages \
+  -f 'source[branch]=main' -f 'source[path]=/docs'</code></pre>
+  <p>A <code>.nojekyll</code> in <code>public/</code> lands in <code>docs/</code> and keeps Pages
+    from second-guessing the folder structure.</p>
+
+  <hr class="rule" />
+  <p class="note">Farebox is a design-showcase concept. Calder is fictional; the arrivals are a
+    seeded simulation, not GTFS-RT. The repository README maps exactly what is demo and what a
+    production build would need.</p>
+  <a class="back" href="../">← Back to Farebox</a>
+</div>
+</body>
+</html>
